@@ -1,0 +1,26 @@
+---
+interface Props {
+  number: string;
+  title: string;
+  disciplines?: string[];
+  href?: string;
+}
+const { number, title, disciplines = [], href } = Astro.props;
+---
+
+<p class="label" data-reveal="text">
+  {href ? (
+    <a class="link" href={href}>
+      [{number}] {title}
+    </a>
+  ) : (
+    <span>
+      [{number}] {title}
+    </span>
+  )}
+  {disciplines.map((d) => (
+    <>
+      <br />[{number}] {d}
+    </>
+  ))}
+</p>

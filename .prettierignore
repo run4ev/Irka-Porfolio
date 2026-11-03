@@ -1,0 +1,9 @@
+legacy/
+dist/
+.astro/
+media/
+public/video/
+package-lock.json
+docs/
+# one line per image keeps the frontmatter easy to edit by hand
+src/content/

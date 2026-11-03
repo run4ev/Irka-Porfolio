@@ -1,0 +1,107 @@
+---
+import { getProjects } from '../lib/projects';
+import { withBase } from '../lib/paths';
+import { site } from '../site.config';
+
+const projects = await getProjects();
+const nav = [...site.nav, { label: 'Index', href: withBase('/projects/') }];
+const year = new Date().getFullYear();
+---
+
+<footer class="footer grid">
+  <hr class="rule" data-reveal="line" />
+  <p class="footer__who" data-reveal="text">
+    {site.name}
+    {site.role.map((line) => (
+      <>
+        <br />
+        {line}
+      </>
+    ))}
+  </p>
+  <p class="footer__work" data-reveal="text">
+    {projects.map((p, i) => (
+      <>
+        {i > 0 && <br />}
+        <a class="link" href={withBase(`/projects/${p.id}/`)}>
+          [{p.data.number}] {p.data.title}
+        </a>
+      </>
+    ))}
+  </p>
+  <p class="footer__contact" data-reveal="text">
+    <a class="link" href={`mailto:${site.email}`}>
+      {site.email}
+    </a>
+  </p>
+  <nav class="footer__nav" aria-label="Footer">
+    <p data-reveal="text">
+      {nav.map((item, i) => (
+        <>
+          {i > 0 && <br />}
+          <a class="link" href={item.href}>
+            {item.label}
+          </a>
+        </>
+      ))}
+    </p>
+  </nav>
+  <p class="footer__top">
+    <a class="link" href="#top">
+      Back to top
+    </a>
+  </p>
+  <p class="footer__legal">© {year}</p>
+</footer>
+
+<style>
+  .footer {
+    grid-auto-flow: row dense;
+    align-items: start;
+    row-gap: var(--lh);
+    padding-bottom: calc(21 * var(--u));
+  }
+  .footer .rule {
+    margin-bottom: calc(var(--row-pad) - var(--lh));
+  }
+  .footer__who {
+    grid-column: 1;
+  }
+  .footer__work {
+    grid-column: 2 / span 2;
+  }
+  .footer__contact {
+    grid-column: 5 / span 2;
+  }
+  .footer__nav {
+    grid-column: 7;
+    text-align: right; /* lines up with Works */
+  }
+  .footer__top {
+    grid-column: 8;
+    justify-self: end; /* lines up with About, on the right margin */
+  }
+  .footer__legal {
+    grid-column: 1;
+  }
+
+  /* Phone: label zone | media zone, three rows (dense flow fills the label zone back in) */
+  @media (max-width: 768.98px) {
+    .footer__who,
+    .footer__nav,
+    .footer__legal {
+      grid-column: 1;
+    }
+    .footer__nav {
+      text-align: start;
+    }
+    .footer__work,
+    .footer__contact,
+    .footer__top {
+      grid-column: 2;
+    }
+    .footer__top {
+      justify-self: start;
+    }
+  }
+</style>

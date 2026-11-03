@@ -1,0 +1,172 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Media from '../../components/Media.astro';
+import NextProject from '../../components/NextProject.astro';
+import CaseSection from '../../components/case/CaseSection.astro';
+import { pieces, defs } from '../../components/case/pieces';
+import { getProjects, nn, sectionId } from '../../lib/projects';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project, i) => ({
+    params: { slug: project.id },
+    props: { project, next: projects[(i + 1) % projects.length] },
+  }));
+}
+
+type Props = { project: CollectionEntry<'projects'>; next: CollectionEntry<'projects'> };
+const { project, next } = Astro.props;
+const { Content } = await render(project);
+const { number, name, disciplines, gallery, story } = project.data;
+const heroName = `${project.id}-hero`;
+const Hero = story?.hero ? pieces[story.hero] : undefined;
+if (story?.hero && !Hero)
+  throw new Error(`Unknown story hero "${story.hero}" (see case/pieces.ts)`);
+const Defs = story ? defs[project.id] : undefined;
+---
+
+<Base title={name} close phoneTitle={`[${number}] ${name}`} paper={story?.paper}>
+  {story ? (
+    <article class="case">
+      {Defs && <Defs />}
+      <header class="case__open grid">
+        <div class="case__labels">
+          <h1 data-reveal="text">
+            [{number}] {name}
+          </h1>
+          <p data-reveal="text">
+            {disciplines.map((d, i) => (
+              <>
+                {i > 0 && <br />}[{number}] {d}
+              </>
+            ))}
+          </p>
+        </div>
+        <div class="case__intro" data-reveal="text">
+          <Content />
+        </div>
+        <nav class="case__toc" aria-label="Sections">
+          <p data-reveal="text">
+            {story.sections.map((s, i) => (
+              <>
+                {i > 0 && <br />}
+                <a class="link" href={`#${sectionId(s.title)}`} data-scroll-to>
+                  [{nn(i + 1)}] {s.title}
+                </a>
+              </>
+            ))}
+          </p>
+        </nav>
+      </header>
+      {Hero ? (
+        <Hero name={heroName} />
+      ) : (
+        <div class="case__hero grid">
+          <figure
+            class="case__hero-media"
+            style={`view-transition-name: ${heroName}; view-transition-class: hero`}
+          >
+            <Media
+              src={gallery[0].src}
+              alt={gallery[0].alt}
+              video={gallery[0].video}
+              widths={[480, 960, 1440]}
+              sizes="(max-width: 768px) 94vw, 72vw"
+              eager
+            />
+          </figure>
+        </div>
+      )}
+      {story.sections.map((section, i) => (
+        <CaseSection section={section} index={i} />
+      ))}
+    </article>
+  ) : (
+    <article class="project grid">
+      <h1 class="visually-hidden">
+        [{number}] {name}
+      </h1>
+      <div class="project__intro" data-reveal="text">
+        <Content />
+      </div>
+      <div class="project__gallery">
+        {gallery.map((m, i) => (
+          <figure
+            class="project__media"
+            data-reveal="img"
+            style={
+              i === 0 ? `view-transition-name: ${heroName}; view-transition-class: hero` : undefined
+            }
+          >
+            <Media
+              src={m.src}
+              alt={m.alt}
+              video={m.video}
+              widths={[480, 960, 1440]}
+              sizes="(max-width: 768px) 94vw, 47vw"
+              eager={i === 0}
+            />
+          </figure>
+        ))}
+      </div>
+    </article>
+  )}
+  <NextProject project={next} />
+</Base>
+
+<style>
+  .project,
+  .case__open {
+    margin-top: calc(var(--intro-top) - var(--content-top));
+  }
+  .project__intro {
+    grid-column: 4 / span 3;
+  }
+  .project__gallery {
+    grid-column: 3 / span 4;
+    display: grid;
+    row-gap: var(--gutter);
+    margin-top: var(--gallery-top);
+  }
+  .project__media :global(img),
+  .project__media :global(video),
+  .case__hero-media :global(img),
+  .case__hero-media :global(video) {
+    height: auto;
+  }
+
+  .case__labels {
+    grid-column: 1 / span 2;
+  }
+  .case__intro {
+    grid-column: 4 / span 3;
+  }
+  .case__toc {
+    grid-column: 7 / span 2;
+  }
+  .case__hero {
+    margin-top: var(--gallery-top);
+  }
+  .case__hero-media {
+    grid-column: 2 / span 6;
+  }
+
+  @media (max-width: 768.98px) {
+    .project__intro,
+    .project__gallery,
+    .case__hero-media {
+      grid-column: 1 / -1;
+    }
+    .case__labels {
+      grid-column: 1;
+    }
+    .case__intro,
+    .case__toc {
+      grid-column: 2;
+    }
+    .case__toc {
+      margin-top: var(--lh);
+    }
+  }
+</style>

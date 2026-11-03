@@ -1,0 +1,49 @@
+@media (prefers-reduced-motion: no-preference) {
+  /* Hide elements that GSAP will reveal, only when JS is running (html.js is set in <head>) */
+  .js [data-reveal],
+  .js [data-lay] {
+    visibility: hidden;
+  }
+
+  /* Native cross-document page transitions (Chrome, Edge, Safari 18.2+; others just navigate) */
+  @view-transition {
+    navigation: auto;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.35s;
+    animation-timing-function: var(--ease-out);
+  }
+  ::view-transition-group(*) {
+    animation-duration: 0.45s;
+    animation-timing-function: var(--ease-out);
+  }
+  /* Thumbnail → hero: both snapshots stay whole and centred while the box changes shape */
+  ::view-transition-old(*.hero),
+  ::view-transition-new(*.hero) {
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+/* Case pages: paper and ink fade when a section recolours the page (motion/paper.ts) */
+body {
+  transition:
+    background-color var(--dur-paper) var(--ease-out),
+    color var(--dur-paper) var(--ease-out);
+}
+.rule,
+.header__bar,
+.subheader {
+  transition: background-color var(--dur-paper) var(--ease-out);
+}
+
+/* Home: hovering a project dims the other rows (pure CSS, no JS) */
+@media (hover: hover) {
+  .row {
+    transition: opacity var(--dur-hover) ease;
+  }
+  .rows:has(.row:hover) .row:not(:hover) {
+    opacity: 0.25;
+  }
+}

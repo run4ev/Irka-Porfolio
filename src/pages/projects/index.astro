@@ -1,0 +1,54 @@
+---
+import { getImage } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import { withBase } from '../../lib/paths';
+import { getProjects } from '../../lib/projects';
+
+const projects = await getProjects();
+// Small optimised previews for the cursor-follow thumbnail
+const previews = await Promise.all(
+  projects.map((p) => getImage({ src: p.data.thumbs[0].src, width: 400, format: 'webp' })),
+);
+---
+
+<Base title="Index" subheader center>
+  <h1 class="visually-hidden">Index</h1>
+  <ol class="index" data-index-list>
+    {projects.map((p, i) => (
+      <li>
+        <hr class="rule" data-reveal="line" />
+        <a class="index__link link" href={withBase(`/projects/${p.id}/`)} data-preview={previews[i].src}>
+          [{p.data.number}] {p.data.title}
+        </a>
+      </li>
+    ))}
+    <li aria-hidden="true">
+      <hr class="rule" data-reveal="line" />
+    </li>
+  </ol>
+  <div class="cursor-preview" data-cursor-preview aria-hidden="true">
+    <img alt="" />
+  </div>
+</Base>
+
+<style>
+  .index {
+    padding-inline: var(--margin);
+  }
+  .index__link {
+    display: block;
+    height: calc(var(--index-row-h) - var(--rule));
+    padding-top: calc(7 * var(--u));
+  }
+  .cursor-preview {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    width: calc(105 * var(--u));
+    aspect-ratio: 105 / 142;
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+  }
+</style>

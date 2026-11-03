@@ -1,0 +1,127 @@
+---
+// The logo animation as a flipbook: scrolling through the track steps the mark through its states
+// (motion/sequence.ts) while the [NN] list marks the current one. Without motion, a storyboard.
+import PcMark from './PcMark.astro';
+import { nn } from '../../../lib/projects';
+
+interface Props {
+  steps: string[];
+}
+const { steps } = Astro.props;
+---
+
+<div class="pc-flip" data-sequence style={`--steps: ${steps.length}`}>
+  <div class="pc-flip__stage grid">
+    <hr class="rule pc-flip__rule" data-reveal="line" />
+    <hr class="rule pc-flip__rule pc-flip__rule--end" data-reveal="line" />
+    <ol class="pc-flip__steps">
+      {steps.map((s, i) => (
+        <li data-sequence-label data-current={i === 0 ? '' : undefined}>
+          [{nn(i + 1)}] {s}
+        </li>
+      ))}
+    </ol>
+    <div class="pc-flip__mark" data-sequence-stage data-step="1">
+      <PcMark fills />
+    </div>
+  </div>
+</div>
+
+<ol class="pc-board grid">
+  {steps.map((s, i) => (
+    <li class="pc-board__item">
+      <PcMark fills step={i + 1} />
+      <p>
+        [{nn(i + 1)}] {s}
+      </p>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .pc-flip {
+    display: none;
+    height: calc(100svh + var(--steps) * 24svh);
+  }
+  .pc-flip__stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    align-content: center;
+  }
+  .pc-flip__rule {
+    grid-row: 1;
+    align-self: start;
+  }
+  .pc-flip__rule--end {
+    align-self: end;
+  }
+  .pc-flip__steps {
+    grid-row: 1;
+    grid-column: 1 / span 2;
+    padding-top: calc(1 * var(--u));
+  }
+  .pc-flip__steps li {
+    opacity: 0.25;
+    transition: opacity var(--dur-hover) ease;
+  }
+  .pc-flip__steps li[data-current] {
+    opacity: 1;
+  }
+  .pc-flip__mark {
+    grid-row: 1;
+    grid-column: 4 / span 2;
+  }
+
+  .pc-board {
+    row-gap: calc(48 * var(--u));
+  }
+  .pc-board__item {
+    grid-column: span 2;
+  }
+  .pc-board__item:nth-child(3n + 1) {
+    grid-column: 2 / span 2;
+  }
+  .pc-board__item p {
+    margin-top: calc(14 * var(--u));
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .pc-flip {
+      display: block;
+    }
+    :global(.js) .pc-board {
+      display: none;
+    }
+  }
+
+  @media (max-width: 768.98px) {
+    .pc-flip__steps {
+      grid-column: 1;
+    }
+    .pc-flip__steps li:not([data-current]) {
+      display: none; /* the full list is taller than the mark here: show the current step only */
+    }
+    .pc-flip__mark {
+      grid-column: 2;
+    }
+    .pc-board {
+      row-gap: calc(28 * var(--u));
+    }
+    .pc-board__item,
+    .pc-board__item:nth-child(3n + 1) {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: subgrid;
+    }
+    .pc-board__item p {
+      grid-row: 1;
+      grid-column: 1;
+      margin-top: 0;
+    }
+    .pc-board__item :global(.pc-mark) {
+      grid-row: 1;
+      grid-column: 2;
+    }
+  }
+</style>

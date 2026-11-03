@@ -1,0 +1,40 @@
+---
+// The inside of one collage piece: image, zoomable image, or nothing (colour block).
+import type { CollectionEntry } from 'astro:content';
+import { Image, getImage } from 'astro:assets';
+
+type Piece = CollectionEntry<'sketchbook'>['data']['pieces'][number];
+interface Props {
+  piece: Piece;
+  sizes: string;
+}
+const { piece: p, sizes } = Astro.props;
+
+// data-lay = how the piece is "laid down" by src/scripts/motion/sketchbook.ts
+const lay =
+  p.kind === 'texture' || p.kind === 'block'
+    ? undefined
+    : p.kind === 'notes' || p.kind === 'group'
+      ? p.kind
+      : 'art';
+const full = p.zoom && p.src ? await getImage({ src: p.src, width: 2000, format: 'webp' }) : null;
+const widths = [400, 800, 1200, 1800];
+---
+
+{p.kind !== 'block' && p.src && (
+  <div class="piece__inner" data-lay={lay}>
+    {full ? (
+      <button
+        class="piece__zoom"
+        type="button"
+        data-zoom
+        data-full={full.src}
+        aria-label={`Open full size: ${p.alt}`}
+      >
+        <Image src={p.src} alt={p.alt} widths={widths} sizes={sizes} />
+      </button>
+    ) : (
+      <Image src={p.src} alt={p.alt} widths={widths} sizes={sizes} />
+    )}
+  </div>
+)}

@@ -1,0 +1,50 @@
+---
+// Case cover: the mark across columns 3–6 (the width of a project image) between two full-width
+// lines, with construction lines drawn in after the page transition. `name` is the
+// view-transition target of the Home thumbnail.
+import PcMark from './PcMark.astro';
+
+interface Props {
+  name: string;
+}
+const { name } = Astro.props;
+---
+
+<figure class="pc-hero grid" style={`view-transition-name: ${name}; view-transition-class: hero`}>
+  <hr class="rule pc-hero__rule" data-reveal="line" data-delay="0.4" />
+  <hr class="rule pc-hero__rule pc-hero__rule--end" data-reveal="line" data-delay="0.55" />
+  <div class="pc-hero__mark">
+    <PcMark
+      step={9}
+      guides
+      label="The P.C. mark: a P in a circle drawn as a single line and a C cut out of a solid square, with construction lines showing that the circle fits the square"
+    />
+  </div>
+</figure>
+
+<style>
+  .pc-hero {
+    margin-top: var(--gallery-top);
+    padding-block: calc(110 * var(--u));
+  }
+  .pc-hero__rule {
+    grid-row: 1;
+    align-self: start;
+  }
+  .pc-hero__rule--end {
+    align-self: end;
+  }
+  .pc-hero__mark {
+    grid-row: 1;
+    grid-column: 3 / span 4;
+  }
+
+  @media (max-width: 768.98px) {
+    .pc-hero {
+      padding-block: calc(70 * var(--u));
+    }
+    .pc-hero__mark {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

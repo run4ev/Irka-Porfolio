@@ -1,0 +1,25 @@
+---
+// Desktop: every piece absolutely positioned with its Figma x/y/w/h, scaled by --k = 100vw / canvas width.
+import type { CollectionEntry } from 'astro:content';
+import Piece from './Piece.astro';
+
+type Data = CollectionEntry<'sketchbook'>['data'];
+interface Props {
+  canvas: Data['canvas'];
+  pieces: Data['pieces'];
+}
+const { canvas, pieces } = Astro.props;
+---
+
+<div class="collage" data-collage style={`--cw: ${canvas.w}; --ch: ${canvas.h}`}>
+  {pieces.map((p) => (
+    <figure
+      class:list={['piece', `piece--${p.kind}`]}
+      data-speed={p.speed !== 1 ? p.speed : undefined}
+      data-bg-shift={p.bgShift ? p.color : undefined}
+      style={`--x: ${p.x}; --y: ${p.y}; --w: ${p.w}; --h: ${p.h}; z-index: ${p.z};${p.color ? ` background: ${p.color};` : ''}`}
+    >
+      <Piece piece={p} sizes={`${Math.ceil((p.w / canvas.w) * 100)}vw`} />
+    </figure>
+  ))}
+</div>

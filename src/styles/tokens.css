@@ -1,0 +1,66 @@
+/* ─────────────────────────────────────────────────────────────
+   Design tokens
+   Everything is designed in "canvas px" (1024 desktop / 320 phone)
+   and multiplied by --u, so the layout scales with the window exactly
+   like the Readymag original.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --canvas: 1024;
+  --u: calc(100vw / var(--canvas));
+
+  /* Colour: the UI is monochrome, colour comes from the work */
+  --ink: #000;
+  --paper: #fff;
+
+  /* Type */
+  --font: 'Red Hat Display', ui-sans-serif, system-ui, sans-serif;
+  --fs: calc(9 * var(--u));
+  --lh: calc(12 * var(--u));
+  --fs-l: calc(18 * var(--u)); /* the only allowed second size */
+
+  /* Grid */
+  --cols: 8;
+  --margin: calc(21 * var(--u));
+  --gutter: calc(21 * var(--u));
+  --rule: max(0.5px, calc(0.8 * var(--u)));
+
+  /* Layout */
+  --header-h: calc(30 * var(--u));
+  --header-pad: calc(8 * var(--u));
+  --subheader-top: calc(64 * var(--u));
+  --subheader-h: calc(30 * var(--u));
+  --content-top: calc(99 * var(--u)); /* first line on Home */
+  --row-h: calc(195 * var(--u));
+  --row-pad: calc(8 * var(--u));
+  --thumb-h: calc(142 * var(--u));
+  --index-row-h: calc(43 * var(--u));
+  --intro-top: calc(42 * var(--u));
+  --gallery-top: calc(44 * var(--u));
+
+  /* Motion (mirrored in src/scripts/motion/tokens.ts) */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1); /* easeOutQuint  ≈ GSAP power4.out  */
+  --ease-line: cubic-bezier(0.65, 0, 0.35, 1); /* easeInOutCubic ≈ GSAP power2.inOut */
+  --dur-hover: 200ms;
+  --dur-text: 600ms;
+  --dur-img: 900ms;
+  --dur-line: 1000ms;
+  --dur-paper: 600ms; /* page colour change on case pages and the Sketchbook */
+}
+
+/* Phone canvas: below 769px, same breakpoint as Readymag */
+@media (max-width: 768.98px) {
+  :root {
+    --canvas: 320;
+    --margin: calc(10 * var(--u));
+    --gutter: calc(10 * var(--u));
+    --label-w: calc(104 * var(--u));
+    --header-h: calc(71 * var(--u));
+    --header-pad: calc(35 * var(--u));
+    --subheader-top: calc(71 * var(--u));
+    --subheader-h: calc(24 * var(--u));
+    --content-top: calc(105 * var(--u));
+    --row-pad: calc(13 * var(--u));
+    --intro-top: calc(98 * var(--u));
+    --gallery-top: calc(20 * var(--u));
+  }
+}

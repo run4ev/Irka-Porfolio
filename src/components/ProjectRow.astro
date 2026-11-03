@@ -1,0 +1,91 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { withBase } from '../lib/paths';
+import LabelBlock from './LabelBlock.astro';
+import Media from './Media.astro';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  eager?: boolean;
+}
+const { project, eager = false } = Astro.props;
+const { number, title, disciplines, thumbs } = project.data;
+const href = withBase(`/projects/${project.id}/`);
+---
+
+<li class="row grid">
+  <hr class="rule" data-reveal="line" />
+  <LabelBlock number={number} title={title} disciplines={disciplines} href={href} />
+  <a class="thumbs" href={href} tabindex="-1" aria-hidden="true">
+    {thumbs.map((t, i) => (
+      <div
+        class:list={['thumb', `thumb--${t.ratio}`]}
+        data-reveal="img"
+        style={
+          i === 0
+            ? `view-transition-name: ${project.id}-hero; view-transition-class: hero`
+            : undefined
+        }
+      >
+        <Media
+          src={t.src}
+          alt={t.alt}
+          video={t.video}
+          widths={[240, 480, 720]}
+          sizes="(max-width: 768px) 62vw, 24vw"
+          eager={eager}
+        />
+      </div>
+    ))}
+  </a>
+</li>
+
+<style>
+  .row {
+    min-height: var(--row-h);
+    align-content: start;
+  }
+  .row :global(.label) {
+    grid-column: 1;
+    padding-top: var(--row-pad);
+  }
+  .thumbs {
+    grid-column: 2 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    align-items: start;
+    padding-top: var(--row-pad);
+  }
+  .thumb {
+    height: var(--thumb-h);
+    overflow: hidden;
+  }
+  .thumb--portrait {
+    grid-column: span 1;
+  }
+  .thumb--landscape {
+    grid-column: span 2;
+  }
+
+  @media (max-width: 768.98px) {
+    .row {
+      min-height: 0;
+      padding-bottom: calc(40 * var(--u));
+    }
+    .thumbs {
+      grid-column: 2;
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: var(--gutter);
+    }
+    .thumb,
+    .thumb--landscape,
+    .thumb--portrait {
+      grid-column: 1;
+      height: auto;
+      aspect-ratio: 196 / 147;
+    }
+    .thumb:nth-child(n + 4) {
+      display: none; /* phone: first three thumbnails only */
+    }
+  }
+</style>

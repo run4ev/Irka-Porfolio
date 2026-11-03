@@ -1,0 +1,84 @@
+/* Layout engine for the Readymag export.
+   Each page has a fixed-size design canvas (1024px desktop, 320px phone)
+   that is scaled to the browser width by assets/js/main.js, exactly like Readymag does. */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--bg, #fff);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* Page stage: its height is set by JS to the scaled canvas height */
+.rm-stage {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* Design canvas (desktop or phone) */
+.rm-layout {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  display: none;
+}
+.rm-layout.is-active { display: block; }
+
+/* Fixed (sticky header) layer, scaled with the canvas */
+.rm-fixed {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 0;
+  transform-origin: 0 0;
+  z-index: 1000;
+  display: none;
+}
+.rm-fixed.is-active { display: block; }
+
+/* Widgets */
+.w { position: absolute; display: block; }
+
+.w-text { overflow: visible; }
+.w-text p,
+.w-text h1, .w-text h2, .w-text h3, .w-text h4,
+.w-text ul, .w-text ol, .w-text li { margin: 0; }
+.w-text p:empty::before { content: "\200b"; }
+.w-text a:hover { opacity: .6; }
+
+.w-pic { overflow: hidden; }
+.w-pic img {
+  position: absolute;
+  display: block;
+  max-width: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.w-pic img.cover {
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.w-shape svg { display: block; overflow: visible; }
+
+/* Scroll-in fade animation (Readymag "scroll" animation with opacity) */
+.anim-fade { opacity: 0; transition: opacity .9s ease; }
+.anim-fade.is-in { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-fade { opacity: 1; transition: none; }
+}

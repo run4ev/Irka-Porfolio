@@ -1,0 +1,162 @@
+---
+// The P.C. mark as live SVG, in the 552 × 264 space of the original artwork: circle and square,
+// every state of the logo animation, and optional construction lines. Needs <PcDefs /> on the page.
+// The state is `step` (1–9) or comes from a [data-step] ancestor (the flipbook stage).
+import { getImage } from 'astro:assets';
+import pattern from '../../../content/projects/pc/pattern.png';
+import ear from '../../../content/projects/pc/ear.png';
+
+interface Props {
+  step?: number;
+  fills?: boolean; // handwriting, portrait and ear (states 3–6)
+  guides?: boolean; // construction lines, drawn in by motion/reveals.ts
+  label?: string; // accessible name; without one the mark is decorative
+}
+const { step, fills = false, guides = false, label } = Astro.props;
+
+// pattern.png: handwriting disc centred at (575, 542.5), portrait square centred at (822.5, 542),
+// 229.5 px tall, so it scales by 264 / 229.5 into the mark
+const s = 264 / 229.5;
+const pat = fills ? await getImage({ src: pattern, width: 1408, format: 'webp' }) : null;
+// ear.png: a crop of the original GIF (shapes 133 px tall there) taken at (265, 266) → (8, −15)
+const g = 264 / 133;
+const earImg = fills ? await getImage({ src: ear, format: 'webp' }) : null;
+const guideDelay = 0.9;
+---
+
+<svg
+  class="pc-mark"
+  viewBox="0 0 552 264"
+  data-step={step}
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+>
+  <g class="pc-mark__circle">
+    <circle class="layer m-ring" cx="132" cy="132" r="127.45"></circle>
+    <use class="layer m-p" href="#pc-p"></use>
+    {pat && (
+      <image
+        class="layer"
+        data-layer="script"
+        href={pat.src}
+        x={132 - 575 * s}
+        y={132 - 542.5 * s}
+        width={1408 * s}
+        height={1056 * s}
+        clip-path="url(#pc-disc)"
+        filter="url(#pc-ink)"
+      />
+    )}
+    {earImg && (
+      <image
+        class="layer"
+        data-layer="ear"
+        href={earImg.src}
+        x={8 * g}
+        y={-15 * g}
+        width={110 * g}
+        height={162 * g}
+        filter="url(#pc-ink)"
+      />
+    )}
+  </g>
+  <g class="pc-mark__square">
+    <rect class="layer m-frame" x="292.55" y="4.55" width="254.9" height="254.9"></rect>
+    <rect class="layer m-fill" x="288" y="0" width="264" height="264" rx="3.5"></rect>
+    {pat && (
+      <image
+        class="layer"
+        data-layer="portrait"
+        href={pat.src}
+        x={420 - 822.5 * s}
+        y={132 - 542 * s}
+        width={1408 * s}
+        height={1056 * s}
+        clip-path="url(#pc-square)"
+      />
+    )}
+    <rect
+      class="layer m-solid"
+      x="288"
+      y="0"
+      width="264"
+      height="264"
+      rx="3.5"
+      mask="url(#pc-knock)"
+    ></rect>
+  </g>
+  {guides && (
+    <g class="pc-mark__guides">
+      {[0, 264, 288, 552].map((x, i) => (
+        <line
+          x1={x}
+          y1="-24"
+          x2={x}
+          y2="288"
+          data-reveal="draw"
+          data-delay={(guideDelay + i * 0.1).toFixed(1)}
+        />
+      ))}
+      <circle
+        cx="420"
+        cy="132"
+        r="132"
+        data-reveal="draw"
+        data-delay={(guideDelay + 0.4).toFixed(1)}
+      />
+    </g>
+  )}
+</svg>
+
+<style is:global>
+  .pc-mark {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .pc-mark .layer {
+    visibility: hidden;
+  }
+  .pc-mark .m-ring,
+  .pc-mark .m-frame {
+    fill: none;
+    stroke: #274ab3;
+    stroke-width: 9.1;
+  }
+  .pc-mark .m-p,
+  .pc-mark .m-fill,
+  .pc-mark .m-solid {
+    fill: #274ab3;
+  }
+
+  /* The nine states of the logo animation (hard cuts, as in the GIF) */
+  [data-step='1'] :is(.m-ring, .m-frame),
+  [data-step='2'] :is(.m-ring, .m-fill),
+  [data-step='3'] :is([data-layer='script'], .m-fill),
+  [data-step='4'] :is([data-layer='script'], [data-layer='portrait']),
+  [data-step='5'] :is([data-layer='ear'], [data-layer='portrait']),
+  [data-step='6'] :is([data-layer='ear'], .m-frame),
+  [data-step='7'] :is(.m-ring, .m-frame),
+  [data-step='8'] :is(.m-ring, .m-fill),
+  [data-step='9'] :is(.m-ring, .m-p, .m-solid) {
+    visibility: visible;
+  }
+  [data-step='7'] .pc-mark__circle {
+    transform: translateX(144px); /* the circle steps into the square */
+  }
+  [data-step='7'] .pc-mark__square {
+    transform: translateX(-144px);
+  }
+
+  .pc-mark__guides {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: var(--rule);
+    transition: stroke var(--dur-paper) var(--ease-out);
+  }
+  .pc-mark__guides * {
+    vector-effect: non-scaling-stroke;
+  }
+</style>

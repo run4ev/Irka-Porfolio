@@ -1,0 +1,72 @@
+---
+import '../styles/fonts.css';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import '../styles/grid.css';
+import '../styles/motion.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../site.config';
+import { withBase } from '../lib/paths';
+
+interface Props {
+  title?: string;
+  description?: string;
+  subheader?: boolean; // "Projects / Index" bar
+  close?: boolean; // "Close" instead of the e-mail (project pages)
+  center?: boolean; // vertically centred content (Index page)
+  phoneTitle?: string; // replaces the name in the phone header, e.g. "[01] P.C."
+  paper?: string; // page background, e.g. '#FEFBEE' on the Sketchbook (set on <html>, so <body> can override it)
+}
+
+const {
+  title,
+  description = site.description,
+  subheader = false,
+  close = false,
+  center = false,
+  phoneTitle,
+  paper,
+} = Astro.props;
+const pageTitle = title ? `${title} — ${site.name}` : site.title;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en" style={paper ? `--paper: ${paper}` : undefined}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <link rel="sitemap" href={withBase('/sitemap-index.xml')} />
+    <link
+      rel="preload"
+      href={withBase('/fonts/red-hat-display-400-latin.woff2')}
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+  </head>
+  <body>
+    <a class="skip-link link" href="#main">
+      Skip to content
+    </a>
+    <Header subheader={subheader} close={close} phoneTitle={phoneTitle} />
+    <main id="main" class:list={['main', { 'main--center': center }]}>
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import '../scripts/motion';
+    </script>
+  </body>
+</html>

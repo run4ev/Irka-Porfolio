@@ -1,0 +1,81 @@
+---
+// One numbered case-study section: full-width line, [NN] title in column 1, paragraph in
+// columns 4–6, then its blocks. `paper` / `ink` recolour the page while it is in view.
+import type { CollectionEntry } from 'astro:content';
+import Plate from './Plate.astro';
+import { pieces } from './pieces';
+import { nn, sectionId } from '../../lib/projects';
+
+type Section = NonNullable<CollectionEntry<'projects'>['data']['story']>['sections'][number];
+interface Props {
+  section: Section;
+  index: number;
+}
+const { section, index } = Astro.props;
+const { title, text, paper, ink, blocks } = section;
+const id = sectionId(title);
+---
+
+<section class="case-section" data-paper={paper} data-ink={ink} aria-labelledby={id}>
+  <div class="case-section__head grid">
+    <hr class="rule" data-reveal="line" />
+    <h2 id={id} class="case-section__title" tabindex="-1" data-reveal="text">
+      [{nn(index + 1)}] {title}
+    </h2>
+    <p class="case-section__text" data-reveal="text">
+      {text}
+    </p>
+  </div>
+  {blocks.length > 0 && (
+    <div class="case-section__body">
+      {blocks.map((block) => {
+        if (block.kind === 'image') return <Plate {...block} />;
+        const Piece = pieces[block.name];
+        if (!Piece) throw new Error(`Unknown story piece "${block.name}" (see case/pieces.ts)`);
+        return <Piece steps={block.steps} />;
+      })}
+    </div>
+  )}
+</section>
+
+<style>
+  .case-section {
+    padding-top: calc(150 * var(--u));
+  }
+  .case-section__title,
+  .case-section__text {
+    padding-top: var(--row-pad);
+  }
+  .case-section__title {
+    grid-column: 1 / span 2;
+    scroll-margin-top: calc(var(--header-h) + 24 * var(--u));
+  }
+  .case-section__title:focus {
+    outline: none;
+  }
+  .case-section__text {
+    grid-column: 4 / span 3;
+  }
+  .case-section__body {
+    display: flex;
+    flex-direction: column;
+    gap: calc(110 * var(--u));
+    margin-top: calc(90 * var(--u));
+  }
+
+  @media (max-width: 768.98px) {
+    .case-section {
+      padding-top: calc(80 * var(--u));
+    }
+    .case-section__title {
+      grid-column: 1;
+    }
+    .case-section__text {
+      grid-column: 2;
+    }
+    .case-section__body {
+      gap: calc(48 * var(--u));
+      margin-top: calc(40 * var(--u));
+    }
+  }
+</style>

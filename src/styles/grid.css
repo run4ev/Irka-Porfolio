@@ -1,0 +1,26 @@
+/* 8-column desktop grid (x = 21 · 145 · 270 · 396 · 522 · 648 · 774 · 900 on the canvas) */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  column-gap: var(--gutter);
+  padding-inline: var(--margin);
+}
+
+/* Phone: two zones, labels (104) + media (196) */
+@media (max-width: 768.98px) {
+  .grid {
+    grid-template-columns: var(--label-w) minmax(0, 1fr);
+    column-gap: 0;
+  }
+}
+
+/* The only ornament: a 0.8px black line across the content width */
+.rule {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: var(--rule);
+  margin: 0;
+  border: 0;
+  background: var(--ink);
+  transform-origin: 0 50%;
+}

@@ -1,0 +1,55 @@
+---
+import { getEntry, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Collage from '../components/sketchbook/Collage.astro';
+import CollageStack from '../components/sketchbook/CollageStack.astro';
+import Lightbox from '../components/sketchbook/Lightbox.astro';
+import '../styles/sketchbook.css';
+
+const entry = await getEntry('sketchbook', 'index');
+if (!entry) throw new Error('Missing src/content/sketchbook/index.md');
+const { Content } = await render(entry);
+const { labels, paper, canvas } = entry.data;
+// Pieces marked `hold: true` (rights not cleared yet) only show in `astro dev`
+const pieces = entry.data.pieces.filter((p) => import.meta.env.DEV || !p.hold);
+---
+
+<Base title="Sketchbook" paper={paper}>
+  <section class="intro grid">
+    <h1 class="visually-hidden">Sketchbook</h1>
+    <hr class="rule" data-reveal="line" />
+    <p class="intro__labels" data-reveal="text">
+      {labels.map((l, i) => (
+        <>
+          {i > 0 && <br />}[S] {l}
+        </>
+      ))}
+    </p>
+    <div class="intro__text" data-reveal="text">
+      <Content />
+    </div>
+  </section>
+
+  <div data-sketchbook>
+    <Collage canvas={canvas} pieces={pieces} />
+    <CollageStack pieces={pieces} />
+  </div>
+
+  <Lightbox />
+</Base>
+
+<style>
+  .intro__labels {
+    grid-column: 1;
+    padding-top: var(--row-pad);
+  }
+  .intro__text {
+    grid-column: 4 / span 3;
+    padding-top: var(--row-pad);
+  }
+  @media (max-width: 768.98px) {
+    .intro__text {
+      grid-column: 2;
+    }
+  }
+</style>

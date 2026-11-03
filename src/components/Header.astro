@@ -1,0 +1,116 @@
+---
+import { site } from '../site.config';
+import { withBase } from '../lib/paths';
+
+interface Props {
+  subheader?: boolean;
+  close?: boolean;
+  phoneTitle?: string;
+}
+const { subheader = false, close = false, phoneTitle } = Astro.props;
+const path = Astro.url.pathname;
+---
+
+<header class="header">
+  <div class="header__bar grid">
+    <a class="header__name link" href={withBase('/')}>
+      <span class:list={['name', { 'name--has-alt': phoneTitle }]}>{site.name}</span>
+      {phoneTitle && <span class="name-alt">{phoneTitle}</span>}
+    </a>
+    <nav class="header__nav" aria-label="Main">
+      {site.nav.map((item) => (
+        <a class="link" href={item.href} aria-current={path === item.href ? 'page' : undefined}>
+          {item.label}
+        </a>
+      ))}
+    </nav>
+    {close ? (
+      <a class="header__end link" href={withBase('/')}>
+        Close
+      </a>
+    ) : (
+      <a class="header__end link" href={`mailto:${site.email}`}>
+        {site.email}
+      </a>
+    )}
+  </div>
+  {subheader && (
+    <div class="subheader grid" data-subheader>
+      <p class="subheader__crumbs">
+        <a class="link" href={withBase('/')}>
+          Projects
+        </a>{' '}
+        /{' '}
+        <a class="link" href={withBase('/projects/')}>
+          Index
+        </a>
+      </p>
+    </div>
+  )}
+</header>
+
+<style>
+  .header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 100;
+  }
+  .header__bar {
+    position: relative;
+    z-index: 2;
+    height: var(--header-h);
+    padding-top: var(--header-pad);
+    background: var(--paper);
+  }
+  .header__name {
+    grid-column: 1 / span 2;
+  }
+  .name-alt {
+    display: none;
+  }
+  .header__nav {
+    grid-column: 6 / span 3;
+    display: flex;
+    justify-content: flex-end;
+    gap: calc(40 * var(--u));
+  }
+  .header__end {
+    display: none; /* desktop: Works returns home, the e-mail lives in the footer */
+  }
+  .subheader {
+    position: absolute;
+    top: var(--subheader-top);
+    left: 0;
+    right: 0;
+    z-index: 1;
+    height: var(--subheader-h);
+    padding-top: calc(8.5 * var(--u));
+    background: var(--paper);
+  }
+  .subheader__crumbs {
+    grid-column: 1 / span 2;
+  }
+
+  @media (max-width: 768.98px) {
+    .header__name {
+      grid-column: 1;
+    }
+    .name--has-alt {
+      display: none;
+    }
+    .name-alt {
+      display: inline;
+    }
+    .header__nav {
+      display: none;
+    }
+    .header__end {
+      display: inline;
+      grid-column: 2;
+      justify-self: end;
+    }
+    .subheader {
+      padding-top: calc(6 * var(--u));
+    }
+  }
+</style>

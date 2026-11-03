@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import ProjectRow from '../components/ProjectRow.astro';
+import { getProjects } from '../lib/projects';
+
+const projects = await getProjects();
+---
+
+<Base subheader>
+  <h1 class="visually-hidden">Works</h1>
+  <ol class="rows">
+    {projects.map((project, i) => (
+      <ProjectRow project={project} eager={i < 2} />
+    ))}
+  </ol>
+</Base>

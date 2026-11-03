@@ -1,0 +1,43 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../site.config';
+---
+
+<Base title="About">
+  <section class="about grid">
+    <h1 class="visually-hidden">About</h1>
+    <p class="about__text" data-reveal="text">
+      Hi, I'm Iryna — a brand designer and art director crafting distinctive visual identities and
+      strong brand stories. A multi-disciplinary mindset and a Kyiv–Barcelona–Kyiv journey shaped a
+      unique perspective, translating into branding that is strategic, refined, and memorable.
+    </p>
+    <p class="about__contact">
+      <a class="link" href={`mailto:${site.email}`}>
+        {site.email}
+      </a>
+    </p>
+  </section>
+</Base>
+
+<style>
+  .about {
+    margin-top: calc(63 * var(--u) - var(--content-top));
+  }
+  .about__text,
+  .about__contact {
+    grid-column: 2 / span 2;
+  }
+  .about__contact {
+    margin-top: var(--lh);
+  }
+  @media (max-width: 768.98px) {
+    .about {
+      margin-top: calc(112 * var(--u) - var(--content-top));
+    }
+    .about__text,
+    .about__contact {
+      grid-column: 1 / -1;
+      max-width: calc(230 * var(--u));
+    }
+  }
+</style>

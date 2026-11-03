@@ -1,0 +1,84 @@
+---
+// End of a project page: the next project as a Home-style row. Its thumbnail grows into that
+// project's hero; motion/transitions.ts names it only when that page is the one being opened.
+import type { CollectionEntry } from 'astro:content';
+import { withBase } from '../lib/paths';
+import Media from './Media.astro';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+const { project } = Astro.props;
+const { number, title, disciplines, thumbs } = project.data;
+const href = withBase(`/projects/${project.id}/`);
+const thumb = thumbs[0];
+---
+
+<nav class="next grid" aria-label="Next project">
+  <hr class="rule" data-reveal="line" />
+  <p class="next__label" data-reveal="text">
+    Next project
+    <br />
+    <a class="link" href={href}>
+      [{number}] {title}
+    </a>
+    {disciplines.map((d) => (
+      <>
+        <br />[{number}] {d}
+      </>
+    ))}
+  </p>
+  <a
+    class:list={['next__thumb', `next__thumb--${thumb.ratio}`]}
+    href={href}
+    tabindex="-1"
+    aria-hidden="true"
+    data-reveal="img"
+    data-vt-next={`${project.id}-hero`}
+    style="view-transition-class: hero"
+  >
+    <Media
+      src={thumb.src}
+      alt={thumb.alt}
+      video={thumb.video}
+      widths={[240, 480, 720]}
+      sizes="(max-width: 768px) 62vw, 24vw"
+    />
+  </a>
+</nav>
+
+<style>
+  .next {
+    min-height: var(--row-h);
+    align-content: start;
+    align-items: start;
+    margin-top: calc(150 * var(--u));
+  }
+  .next__label {
+    grid-column: 1;
+    padding-top: var(--row-pad);
+  }
+  .next__thumb {
+    grid-column: 2 / span 1;
+    margin-top: var(--row-pad);
+    height: var(--thumb-h);
+    overflow: hidden;
+  }
+  .next__thumb--landscape {
+    grid-column: 2 / span 2;
+  }
+
+  @media (max-width: 768.98px) {
+    .next {
+      min-height: 0;
+      padding-bottom: calc(40 * var(--u));
+      margin-top: calc(80 * var(--u));
+    }
+    .next__thumb,
+    .next__thumb--landscape {
+      grid-column: 2;
+      height: auto;
+      aspect-ratio: 196 / 147;
+    }
+  }
+</style>

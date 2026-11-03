@@ -1,0 +1,202 @@
+---
+// One image (or looping video) in a case-study section, with optional [NN] lists beside it and
+// hairline notes pointing at details. Notes sit in column 1 (left) or 8 (right); on phones they
+// become a list under the image.
+import type { ImageMetadata } from 'astro';
+import Media from '../Media.astro';
+import { nn } from '../../lib/projects';
+
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  video?: string;
+  size: 'center' | 'wide' | 'full';
+  blend: boolean;
+  notes: { x: number; y: number; side: 'left' | 'right'; label: string }[];
+  lists: { side: 'left' | 'right'; title: string; items: string[] }[];
+}
+const { src, alt, video, size, blend, notes, lists } = Astro.props;
+const vw = { center: 47, wide: 72, full: 96 }[size];
+---
+
+<div class:list={['plate', 'grid', `plate--${size}`, { 'plate--blend': blend }]}>
+  <figure class="plate__media" data-reveal="img">
+    <Media
+      src={src}
+      alt={alt}
+      video={video}
+      widths={[480, 960, 1440]}
+      sizes={`(max-width: 768px) 94vw, ${vw}vw`}
+    />
+  </figure>
+  {lists.length > 0 && (
+    <div class="plate__lists">
+      {lists.map((list) => (
+        <p class:list={['plate__list', `plate__list--${list.side}`]} data-reveal="text">
+          {list.title}
+          {list.items.map((item, i) => (
+            <>
+              <br />[{nn(i + 1)}] {item}
+            </>
+          ))}
+        </p>
+      ))}
+    </div>
+  )}
+  {notes.length > 0 && (
+    <div class="plate__notes" aria-hidden="true">
+      {notes.map((note, i) => (
+        <span
+          class:list={['note', `note--${note.side}`]}
+          style={`--x: ${note.x / 100}; --y: ${note.y / 100}`}
+        >
+          <span class="note__label" data-reveal="text" data-delay="0.35">
+            [{nn(i + 1)}] {note.label}
+          </span>
+          <span class="note__line" data-reveal="line" data-delay="0.45"></span>
+        </span>
+      ))}
+    </div>
+  )}
+  {notes.length > 0 && (
+    <ol class="plate__legend">
+      {notes.map((note, i) => (
+        <li>
+          [{nn(i + 1)}] {note.label}
+        </li>
+      ))}
+    </ol>
+  )}
+</div>
+
+<style>
+  /* --pl / --pw: the image's left edge and width inside the content box, in canvas px */
+  .plate {
+    align-items: start;
+  }
+  .plate__media {
+    grid-row: 1;
+  }
+  .plate__media :global(img),
+  .plate__media :global(video) {
+    height: auto;
+  }
+  .plate--center {
+    --pl: 251;
+    --pw: 481;
+  }
+  .plate--center .plate__media {
+    grid-column: 3 / span 4;
+  }
+  .plate--wide {
+    --pl: 125.5;
+    --pw: 732;
+  }
+  .plate--wide .plate__media {
+    grid-column: 2 / span 6;
+  }
+  .plate--full {
+    --pl: 0;
+    --pw: 983;
+  }
+  .plate--full .plate__media {
+    grid-column: 1 / -1;
+  }
+
+  /* White backgrounds take the paper colour (the figure needs the paper behind it to blend) */
+  .plate--blend .plate__media {
+    background: var(--paper);
+  }
+  .plate--blend .plate__media :global(img),
+  .plate--blend .plate__media :global(video) {
+    mix-blend-mode: multiply;
+  }
+
+  /* both lists share one top line, centred on the image */
+  .plate__lists {
+    grid-row: 1;
+    grid-column: 1 / -1;
+    align-self: center;
+    display: grid;
+    grid-template-columns: subgrid;
+    align-items: start;
+  }
+  .plate__list--left {
+    grid-column: 1 / span 2;
+  }
+  .plate__list--right {
+    grid-column: 7 / span 2;
+  }
+
+  .plate__notes {
+    grid-row: 1;
+    grid-column: 1 / -1;
+    align-self: stretch;
+    position: relative;
+    pointer-events: none;
+  }
+  .note {
+    position: absolute;
+    top: calc(var(--y) * 100%);
+    display: flex;
+    align-items: center;
+    gap: calc(6 * var(--u));
+    translate: 0 -50%;
+  }
+  .note--left {
+    left: 0;
+    width: calc((var(--pl) + var(--x) * var(--pw)) * var(--u));
+  }
+  .note--right {
+    left: calc((var(--pl) + var(--x) * var(--pw)) * var(--u));
+    right: 0;
+    flex-direction: row-reverse;
+  }
+  .note__label {
+    flex: none;
+    white-space: nowrap;
+  }
+  .note__line {
+    flex: 1;
+    height: var(--rule);
+    background: var(--ink);
+    transition: background-color var(--dur-paper) var(--ease-out);
+  }
+  .plate__legend {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  @media (max-width: 768.98px) {
+    .plate .plate__media {
+      grid-column: 1 / -1;
+    }
+    .plate__lists {
+      grid-row: 2;
+      align-self: start;
+      margin-top: var(--gutter);
+    }
+    .plate__list--left {
+      grid-column: 1;
+    }
+    .plate__list--right {
+      grid-column: 2;
+    }
+    .plate__notes {
+      display: none;
+    }
+    .plate__legend {
+      position: static;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip-path: none;
+      grid-row: 2;
+      grid-column: 2;
+      margin-top: var(--gutter);
+    }
+  }
+</style>

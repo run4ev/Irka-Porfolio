@@ -1,0 +1,42 @@
+---
+// Still image via astro:assets (AVIF/WebP + srcset), or a looping video
+// (converted from the original GIF) that uses the still image as its poster.
+import { Image, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { withBase } from '../lib/paths';
+
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  video?: string; // base name in /public/video/
+  widths: number[];
+  sizes: string;
+  eager?: boolean;
+}
+const { src, alt, video, widths, sizes, eager = false } = Astro.props;
+const poster = video ? await getImage({ src, width: 960, format: 'webp' }) : null;
+---
+
+{video && poster ? (
+  <video
+    autoplay
+    muted
+    loop
+    playsinline
+    preload={eager ? 'auto' : 'metadata'}
+    poster={poster.src}
+    aria-label={alt}
+  >
+    <source src={withBase(`/video/${video}.webm`)} type="video/webm" />
+    <source src={withBase(`/video/${video}.mp4`)} type="video/mp4" />
+  </video>
+) : (
+  <Image
+    src={src}
+    alt={alt}
+    widths={widths}
+    sizes={sizes}
+    loading={eager ? 'eager' : 'lazy'}
+    fetchpriority={eager ? 'high' : 'auto'}
+  />
+)}

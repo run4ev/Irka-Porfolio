@@ -1,0 +1,67 @@
+---
+// Phone: the same pieces in one column (in Figma y-order), with a colour-block group and a 2-column grid.
+import type { CollectionEntry } from 'astro:content';
+import Piece from './Piece.astro';
+
+type P = CollectionEntry<'sketchbook'>['data']['pieces'][number];
+interface Props {
+  pieces: P[];
+}
+const { pieces } = Astro.props;
+
+type Grid = { type: 'grid'; a: P[]; b: P[] };
+type Node = { type: 'piece'; p: P } | { type: 'block'; p: P; children: P[] } | Grid;
+
+const sorted = pieces.filter((p) => !p.phone.hidden).sort((a, b) => a.y - b.y);
+const flow: Node[] = [];
+for (const p of sorted) {
+  const g = p.phone.group;
+  if (p.kind === 'block') {
+    flow.push({ type: 'block', p, children: sorted.filter((c) => c.phone.group === 'block') });
+  } else if (g === 'grid-a' || g === 'grid-b') {
+    let grid = flow.find((n): n is Grid => n.type === 'grid');
+    if (!grid) {
+      grid = { type: 'grid', a: [], b: [] };
+      flow.push(grid);
+    }
+    (g === 'grid-a' ? grid.a : grid.b).push(p);
+  } else if (g !== 'block') {
+    flow.push({ type: 'piece', p });
+  }
+}
+const itemStyle = (p: P) => `--w: ${p.w}; --h: ${p.h}; --pw: ${p.phone.w ?? 320};`;
+---
+
+<div class="stack" data-stack>
+  {flow.map((n) =>
+    n.type === 'piece' ? (
+      <figure class="stack__item" data-align={n.p.phone.align} style={itemStyle(n.p)}>
+        <Piece piece={n.p} sizes="100vw" />
+      </figure>
+    ) : n.type === 'block' ? (
+      <div
+        class="stack__block"
+        data-bg-shift={n.p.bgShift ? n.p.color : undefined}
+        style={`background: ${n.p.color}`}
+      >
+        {n.children.map((c) => (
+          <figure class="stack__item" data-align={c.phone.align} style={itemStyle(c)}>
+            <Piece piece={c} sizes="60vw" />
+          </figure>
+        ))}
+      </div>
+    ) : (
+      <div class="stack__grid">
+        {[n.a, n.b].map((col) => (
+          <div class="stack__col">
+            {col.map((c) => (
+              <figure class="stack__item" style={itemStyle(c)}>
+                <Piece piece={c} sizes="45vw" />
+              </figure>
+            ))}
+          </div>
+        ))}
+      </div>
+    ),
+  )}
+</div>

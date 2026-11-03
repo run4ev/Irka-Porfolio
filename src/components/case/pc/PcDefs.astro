@@ -1,0 +1,40 @@
+---
+// Shared SVG definitions for the P.C. pieces (glyphs, the C knockout, clips, ink filter).
+// Rendered once on the P.C. page; PcMark refers to these ids.
+import { glyphP, glyphC } from './glyphs';
+---
+
+<svg class="pc-defs" aria-hidden="true" focusable="false">
+  <defs>
+    <path id="pc-p" d={glyphP} fill-rule="evenodd"></path>
+    <path id="pc-c" d={glyphC}></path>
+    <mask id="pc-knock" maskUnits="userSpaceOnUse" x="288" y="0" width="264" height="264">
+      <rect x="288" y="0" width="264" height="264" fill="#fff"></rect>
+      <use href="#pc-c" fill="#000"></use>
+    </mask>
+    <clipPath id="pc-disc">
+      <circle cx="132" cy="132" r="124"></circle>
+    </clipPath>
+    <clipPath id="pc-square">
+      <rect x="288" y="0" width="264" height="264" rx="3.5"></rect>
+    </clipPath>
+    <!-- Light paper becomes transparent and the drawing becomes cobalt ink, so the handwriting
+         and the ear print onto whatever paper the page has (alpha from the green channel, times
+         the source alpha so empty pixels stay empty). -->
+    <filter id="pc-ink" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB">
+      <feColorMatrix
+        type="matrix"
+        values="0 0 0 0 0.153  0 0 0 0 0.29  0 0 0 0 0.702  0 -1.449 0 1.42 0"
+      ></feColorMatrix>
+    </filter>
+  </defs>
+</svg>
+
+<style>
+  .pc-defs {
+    position: absolute; /* not display: none, which would switch the masks off */
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+</style>
